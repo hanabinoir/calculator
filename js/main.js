@@ -36,7 +36,7 @@ $(document).ready(function() {
     $(document).on('keydown', function(event) {
         event.preventDefault();
         /* Act on the event */
-        var key = parseInt(event.which);
+        var key = event.which;
         getKey(key);
     });
 });
@@ -69,18 +69,38 @@ function getKey(key) {
         display.html(displayVal);
     }
 
+    if ((key >= 96 && key <= 105) || key == 110) {
+        if (key == 110) {
+            key = 46;
+        } else {
+            key -= 48;
+        }
+        inputVal += String.fromCharCode(key);
+        displayVal += String.fromCharCode(key);
+        input.val(inputVal);
+        display.html(displayVal);
+    }
+
     if (isOperator(key)) {
+        if (key > 100) {
+            key -= 64;
+        }
+
         if (vals.length <= 2) {
             if (inputVal != 0 && vals.length != 1) {
                 vals.push(parseFloat(inputVal));
                 inputVal = "";
             }
 
-            if (!(key == 13 || key == 61)) {
+            if (
+                !(key == 13 || key == 61) &&
+                (inputVal != "0" || inputVal != "")
+            ) {
+                console.log(inputVal);
                 vals.push(key);
                 var vKey = "";
 
-                if (key == -1 || key == -3) {
+                if (key == -1) {
                     vals.push(2);
                 }
 
@@ -88,13 +108,14 @@ function getKey(key) {
                     vKey = String.fromCharCode(key);
                 } else {
                     switch (key) {
-                        case -1:
                         case -2:
                             vKey = "^";
                             break;
                         case -3:
+                            vKey = "rt";
+                            break;
                         case -4:
-                            vKey = "&radic;";
+                            vKey = "%";
                             break;
                         default:
                             vKey = "?";
@@ -130,7 +151,10 @@ function getKey(key) {
 
 function isOperator(key) {
     return (
-        ([43, 45, 42, 47, 13, 61].indexOf(key) > -1) ||
+        ([
+            // 43, 45, 42, 47, 13,
+            107, 109, 106, 111, 61, 13
+        ].indexOf(key) > -1) ||
         (key >= -4 && key <= -1)
     );
 }
@@ -154,8 +178,10 @@ function Calc(operator) {
             return Math.pow(vals[0], vals[2]);
             break;
         case -3:
-        case -4:
             return Math.pow(vals[0], (1 / vals[2]));
+            break;
+        case -4:
+            return vals[0] % vals[2];
             break;
         default:
             return 0;
