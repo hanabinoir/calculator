@@ -129,6 +129,7 @@ function getKey(key) {
 
         if (vals.length >= 3) {
             var result = Calc(vals[1]);
+
             if(Math.round(result) == result) {
                 displayVal = Math.round(result);
             } else {
